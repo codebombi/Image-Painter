@@ -436,6 +436,7 @@ class ImagePainterState extends State<ImagePainter> {
   late final ValueNotifier<bool> _isLoaded;
   late final TextEditingController _textController;
   late final TransformationController _transformationController;
+  late Controller getController = _controller;
 
   int _strokeMultiplier = 1;
   late TextDelegate textDelegate;
