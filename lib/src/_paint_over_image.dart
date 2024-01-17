@@ -440,6 +440,7 @@ class ImagePainterState extends State<ImagePainter> {
 
   int _strokeMultiplier = 1;
   late TextDelegate textDelegate;
+
   @override
   void initState() {
     super.initState();
@@ -680,6 +681,14 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Fires while user is interacting with the screen to record painting.
   void _scaleUpdateGesture(ScaleUpdateDetails onUpdate) {
+    /// When zoom process Ignore save painter
+    if (onUpdate.pointerCount != 1) return;
+
+    // log('==== _scaleUpdateGesture 111 === ');
+    // log(onUpdate.pointerCount.toString());
+
+    // log(onUpdate.localFocalPoint.toString());
+    // log(_controller.busy.toString());
     final _zoomAdjustedOffset =
         _transformationController.toScene(onUpdate.localFocalPoint);
     _controller.setInProgress(true);
@@ -699,6 +708,12 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Fires when user stops interacting with the screen.
   void _scaleEndGesture(ScaleEndDetails onEnd) {
+    /// When zoom process Ignore save painter
+    if (onEnd.pointerCount != 0) return;
+    // log('==** _scaleEndGesture **==');
+    // log(onEnd.pointerCount.toString());
+    // log(onEnd.velocity.toString());
+    // log(_controller.busy.toString());
     _controller.setInProgress(false);
     if (_controller.start != null &&
         _controller.end != null &&
