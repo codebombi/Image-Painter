@@ -52,6 +52,7 @@ class ImagePainter extends StatefulWidget {
     this.optionColor,
     this.onUndo,
     this.onClear,
+    this.onPaintProcess,
   }) : super(key: key);
 
   ///Constructor for loading image from network url.
@@ -200,6 +201,7 @@ class ImagePainter extends StatefulWidget {
     Color? optionColor,
     VoidCallback? onUndo,
     VoidCallback? onClear,
+    Function(bool)? onPaintProcess,
   }) {
     return ImagePainter._(
       key: key,
@@ -228,6 +230,7 @@ class ImagePainter extends StatefulWidget {
       optionColor: optionColor,
       onUndo: onUndo,
       onClear: onClear,
+      onPaintProcess: onPaintProcess,
     );
   }
 
@@ -424,6 +427,8 @@ class ImagePainter extends StatefulWidget {
 
   final VoidCallback? onClear;
 
+  final Function(bool)? onPaintProcess;
+
   @override
   ImagePainterState createState() => ImagePainterState();
 }
@@ -575,32 +580,29 @@ class ImagePainterState extends State<ImagePainter> {
         children: [
           if (widget.controlsAtTop && widget.showControls) _buildControls(),
           Expanded(
-            child: FittedBox(
-              alignment: FractionalOffset.center,
-              child: ClipRect(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return InteractiveViewer(
-                      transformationController: _transformationController,
-                      maxScale: 2.4,
-                      minScale: 1,
-                      panEnabled: _controller.mode == PaintMode.none,
-                      scaleEnabled: widget.isScalable!,
-                      onInteractionUpdate: _scaleUpdateGesture,
-                      onInteractionEnd: _scaleEndGesture,
-                      child: CustomPaint(
-                        size: imageSize,
-                        willChange: true,
-                        isComplex: true,
-                        painter: DrawImage(
-                          image: _image,
-                          controller: _controller,
-                        ),
+            child: ClipRect(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return InteractiveViewer(
+                    transformationController: _transformationController,
+                    maxScale: 5.0,
+                    minScale: 1,
+                    panEnabled: _controller.mode == PaintMode.none,
+                    scaleEnabled: widget.isScalable!,
+                    onInteractionUpdate: _scaleUpdateGesture,
+                    onInteractionEnd: _scaleEndGesture,
+                    child: CustomPaint(
+                      size: imageSize,
+                      willChange: true,
+                      isComplex: true,
+                      painter: DrawImage(
+                        image: _image,
+                        controller: _controller,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -863,6 +865,7 @@ class ImagePainterState extends State<ImagePainter> {
   void _addPaintHistory(PaintInfo info) {
     if (info.mode != PaintMode.none) {
       _controller.addPaintInfo(info);
+      widget.onPaintProcess?.call(_controller.paintHistory.isNotEmpty);
     }
   }
 
